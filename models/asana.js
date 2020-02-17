@@ -12,7 +12,6 @@ const cacheFile = process.env.CACHE_FILE;
 
 const client = asana.Client.create({defaultHeaders: {'Asana-Enable': 'string_ids'}}).useAccessToken(asanaPersonalToken);
 
-
 function processData(data) {
     /**
      *
@@ -260,9 +259,11 @@ async function fetchUsers(userIds) {
     const users = {};
     for (let i in userIds) {
         let id = userIds[i];
+        process.stdout.write(`${"\033[0G"}Fetching users: ${+i+1}/${userIds.length}`);
         let user = await client.users.findById(id);
         users[user.gid] = user;
     }
+    console.log("");
     return users;
 }
 
@@ -274,7 +275,9 @@ async function fetchData() {
         let task = tasks[i];
         let rawTaskData = await fetchTask(task.gid);
         taskData.push(processTask(rawTaskData));
+        process.stdout.write(`${"\033[0G"}Fetching tasks: ${+i+1}/${tasks.length}`);
     }
+    console.log("");
     const userData = await fetchUsers([...new Set(taskData.map(i => i.assignee ? i.assignee.gid : null))].filter(i => !!i));
     const data = {
         createdAt: (new Date()).getTime(),
@@ -289,14 +292,20 @@ const getAsanaPoints = async (forceRefresh) => {
     const cache = loadCache();
     let data = null;
     const now = (new Date()).getTime();
+    let createdAt;
     if (forceRefresh || !cache.createdAt || now - cache.createdAt > cacheInMillis) {
         data = await fetchData();
+        createdAt = (new Date()).getTime();
     } else {
         data = cache;
+        createdAt = cache.createdAt;
     }
-    return processData(data);
+    const result = {
+        createdAt,
+        data: processData(data)
+    };
+    return result;
 };
-
 
 module.exports = {
     getAsanaPoints
