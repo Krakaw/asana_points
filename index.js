@@ -3,8 +3,13 @@ const cron = require('node-cron');
 const express = require('express')
 const app = express()
 const {getAsanaPoints} = require('./models/asana');
+const {CRON_FETCH_MINUTES} = process.env;
 
-cron.schedule("*/4 * * * *", getAsanaPoints(true), {scheduled: true});
+
+if (CRON_FETCH_MINUTES) {
+    cron.schedule(`*/${CRON_FETCH_MINUTES} * * * *`, getAsanaPoints.bind(this, true), {scheduled: true});
+}
+
 
 app.use(express.json())
 
