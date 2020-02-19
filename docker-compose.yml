@@ -1,0 +1,11 @@
+version: '3'
+services:
+  api:
+    restart: always
+    build: .
+    ports:
+      - "4001:4000"
+    env_file:
+      - .env
+    volumes:
+      - ./tmp:/cache
