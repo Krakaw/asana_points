@@ -10,7 +10,7 @@
   "author": "Krakaw",
   "license": "ISC",
   "dependencies": {
-    "asana": "^0.17.3",
+    "asana": "^3.0.4",
     "dotenv": "^8.2.0",
     "express": "^4.19.2",
     "node-cron": "^2.0.3"
